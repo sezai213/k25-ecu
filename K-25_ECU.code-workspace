@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "K-25_ECU",
+			"path": "."
+		},
+		{
+			"name": "K-25_Throttle",
+			"path": "../K-25_Throttle"
+		}
+	],
+	"settings": {}
+}
