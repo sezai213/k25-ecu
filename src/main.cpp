@@ -143,7 +143,7 @@ void loop()
   }
   else
   {
-    Serial.println("Yeni mesaj yok");
+    //Serial.println("Yeni mesaj yok");
   }
   //delay(2); // 100 ms bekle
   // MCP2515'e mesaj gönder
