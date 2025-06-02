@@ -34,13 +34,14 @@ MCP2515* canController;
 
   #define ALARM_RELAY_PIN 37
   #define FAN_RELAY_PIN 38
-  #define RELAY_PIN_5 39
+  #define HEADLIGHT_RELAY_PIN 39
   #define RELAY_PIN_6 40
 
 
 
 
 #include "DHT.h"
+
 
 #define DHTPIN 4          // Sensörün bağlı olduğu GPIO pini
 #define DHTTYPE DHT22     // Sensör tipi (DHT11 yerine DHT22 kullanıyoruz)
@@ -116,7 +117,7 @@ void updateThrottleLevel(float value) {
   }
 }
 //RELAY_PIN_1, RELAY_PIN_2, 
-  const int relayPins[] = {ALARM_RELAY_PIN, FAN_RELAY_PIN, RELAY_PIN_5, RELAY_PIN_6};
+  const int relayPins[] = {ALARM_RELAY_PIN, FAN_RELAY_PIN, HEADLIGHT_RELAY_PIN, RELAY_PIN_6};
   const int relayCount = sizeof(relayPins) / sizeof(relayPins[0]);
 
   // Variables for relay control
@@ -125,14 +126,15 @@ void updateThrottleLevel(float value) {
   const unsigned long relayActivationTime = 200; // 2 seconds in milliseconds
 
 
-X9C digiPot(36, 46,35 ); // CS, INC, U/D pinleri
+X9C digiPot(36, 12,35 ); // CS, INC, U/D pinleri
 
 
 
 
 void setup()
 {
-
+digiPot.begin(); // Dijital potansiyometre başlatılıyor
+ digiPot.reset(); // Dijital potansiyometreye throttle değerini gönder
   dht.begin();
   // Initialize relay pins
   for (int i = 0; i < relayCount; i++) {
@@ -185,9 +187,14 @@ uint8_t didWork= 0;
   //uint32_t rxId;
     //uint8_t len = 0;
    // uint8_t rxBuf[64];
+   uint8_t testVal = 0;
+     static bool increasing = true;
+
 void loop()
 {
 
+ 
+  
 
 
   float humidity = dht.readHumidity();
@@ -198,12 +205,6 @@ void loop()
     Serial.println(F("DHT sensörü okunamadı!"));
     return;
   }
-
-  Serial.print(F("Nem: "));
-  Serial.print(humidity);
-  Serial.print(F(" % | Sıcaklık: "));
-  Serial.print(temperature);
-  Serial.println(F(" °C"));
 
 
 if(didWork == 0) {
@@ -224,6 +225,11 @@ delay(3000);
   digitalWrite(relayPins[0], LOW);
    delay(relayActivationTime);
       digitalWrite(relayPins[0], HIGH);
+
+        digitalWrite(HEADLIGHT_RELAY_PIN, LOW);
+delay(3000);
+  digitalWrite(HEADLIGHT_RELAY_PIN, HIGH);
+
     
 }
 
@@ -244,21 +250,15 @@ delay(3000);
         lastUpdateTime = millis();
       }
 
-      int pwmValue = (int)( (throttlePercent / 100.0) * 255);
-      Serial.print("Raw: ");
-      Serial.print(throttleRaw);
-      Serial.print(" / PWM: ");
-      Serial.print(pwmValue);
-      Serial.print(" / Yüzde: ");
-      Serial.print(throttlePercent);
-      Serial.println("%");
+      int potValue = (int)( (throttlePercent / 100.0) * 30);
+ 
 
     
-if (pwmValue > 255) pwmValue = 255;
-if (pwmValue < 0) pwmValue = 0;
+if (potValue > 30) potValue = 30;
+if (potValue < 0) potValue = 0;
       // Sinyali üret
-      analogWrite(VIRTUAL_POTENTIOMETER_PIN, pwmValue);
-      delay(100);
+  digiPot.setValue(potValue); // Dijital potansiyometreye throttle değerini gönder
+    
 
     }
 //
@@ -306,6 +306,7 @@ if (pwmValue < 0) pwmValue = 0;
 //   }
   
   //Serial.println("PWM Write: 128");
-  delay(100); // 100 ms bekle
+  delay(5); // 100 ms bekle
  
+
 }
