@@ -1,4 +1,5 @@
 #include "X9C.h"
+#define wait_timing() delayMicroseconds(3)
 
 X9C::X9C(uint8_t pinCS, uint8_t pinINC, uint8_t pinUD)
     : _cs(pinCS), _inc(pinINC), _ud(pinUD), _currentValue(0) {}
@@ -7,9 +8,9 @@ X9C::X9C(uint8_t pinCS, uint8_t pinINC, uint8_t pinUD)
 
 
   digitalWrite(_ud, LOW);
-    delayMicroseconds(3);
+    wait_timing();
         digitalWrite(_cs, LOW);
-      delayMicroseconds(2);
+      wait_timing();
     for (int i = 0; i < 100; i++) pulseINC();
     _currentValue = 0;
       digitalWrite(_cs, HIGH);
@@ -33,27 +34,27 @@ void X9C::setValue(uint8_t target) {
   if (target == _currentValue) return;
   Serial.println("Setting value to: " + String(target));
   digitalWrite(_cs, LOW);
-  delayMicroseconds(2);
+  wait_timing();
 
   if (target == 0) {
     digitalWrite(_ud, LOW);
-      delayMicroseconds(3);
+    wait_timing();
     for (int i = 0; i < 100; i++) pulseINC();
     _currentValue = 0;
   } else if (target > _currentValue) {
     digitalWrite(_ud, HIGH);
-      delayMicroseconds(3);
+    wait_timing();
     for (int i = 0; i < target - _currentValue; i++) pulseINC();
     _currentValue = target;
   } else {  
     digitalWrite(_ud, LOW);
-      delayMicroseconds(3);
+    wait_timing();
     for (int i = 0; i < _currentValue - target; i++) pulseINC();
     _currentValue = target;
   }
 
   digitalWrite(_cs, HIGH);
-  delayMicroseconds(5);
+  wait_timing();
 
 }
 
@@ -63,7 +64,7 @@ uint8_t X9C::getCurrentValue() const {
 
 void X9C::pulseINC() {
   digitalWrite(_inc, LOW);
-  delayMicroseconds(1);
+  wait_timing();
   digitalWrite(_inc, HIGH);
-  delayMicroseconds(2);
+  wait_timing();
 }
