@@ -5,8 +5,9 @@
 #include <mcp2515.h>
 #include <X9C.h>
 #include <com_manager.h>
+#include <thermal_management.h>
 
-
+#define THERMAL_SENSOR_PIN  4
 #define VIRTUAL_POTENTIOMETER_PIN 46
 
 // #define CAN_CS_PIN 7
@@ -31,12 +32,7 @@ MCP2515 *canController;
 
 #define ARMING_SSR_RELAY_PIN 8
 
-#include "DHT.h"
 
-#define DHTPIN 4      // Sensörün bağlı olduğu GPIO pini
-#define DHTTYPE DHT22 // Sensör tipi (DHT11 yerine DHT22 kullanıyoruz)
-
-DHT dht(DHTPIN, DHTTYPE);
 
 
 // RELAY_PIN_1, RELAY_PIN_2,
@@ -49,7 +45,9 @@ int currentRelay = -1;
 const unsigned long relayActivationTime = 200; // 2 seconds in milliseconds
 
 X9C digiPot(36, 12, 35); // CS, INC, U/D pinleri
+ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
 ComManager comManager;
+
 void setup()
 {
   
@@ -58,7 +56,8 @@ void setup()
 
   digiPot.begin(); // Dijital potansiyometre başlatılıyor
   digiPot.reset(); // Dijital potansiyometreye throttle değerini gönder
-  dht.begin();
+
+  thermalManagement.initialize();
   // Initialize relay pins
   for (int i = 0; i < relayCount; i++)
   {
@@ -121,23 +120,14 @@ void loop()
     comManager.send_throttle_level(throttlePercentR);
     lastUpdateTime = millis();
   }
-
+  float temperature=thermalManagement.readTemperature();
 
   // digitalWrite(ARMING_SSR_RELAY_PIN, HIGH); // Ensure all relays start off
   // delay(1000);
   // digitalWrite(ARMING_SSR_RELAY_PIN, LOW); // Ensure all relays start off
   // delay(1000);
 
-  float humidity = dht.readHumidity();
-  float temperature = dht.readTemperature();
-
-  // Hata kontrolü
-  if (isnan(humidity) || isnan(temperature))
-  {
-    Serial.println(F("DHT sensörü okunamadı!"));
-    return;
-  }
-
+  
   if (didWork == 0)
   {
     didWork = 1;
