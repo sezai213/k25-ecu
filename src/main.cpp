@@ -1,36 +1,18 @@
-
 #include <SPI.h>
 #include <Arduino.h>
-
 #include <mcp2515.h>
 #include <X9C.h>
 #include <com_manager.h>
 #include <thermal_management.h>
+#include <global_configuration.h>
 
-#define THERMAL_SENSOR_PIN  4
-#define VIRTUAL_POTENTIOMETER_PIN 46
 
-// #define CAN_CS_PIN 7
-// #define CAN_MISO  13
-// #define CAN_MOSI  11
-// #define CAN_SCK   12
 
-#define CAN_CS_PIN 18 // 5
-#define CAN_MISO 16   //
-#define CAN_MOSI 15   //
-#define CAN_SCK 17    //
+
 struct can_frame canMsg;
 struct can_frame response;
 MCP2515 *canController;
 
-// Relay pin definitions
-
-#define ALARM_RELAY_PIN 37
-#define FAN_RELAY_PIN 38
-#define HEADLIGHT_RELAY_PIN 39
-#define RELAY_PIN_6 40
-
-#define ARMING_SSR_RELAY_PIN 8
 
 
 

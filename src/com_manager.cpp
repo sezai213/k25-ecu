@@ -3,6 +3,7 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 #include <com_manager.h>
+#include <global_configuration.h>
 
 ComManager::ComManager()
 {
@@ -13,9 +14,7 @@ bool deviceConnected = false;
 float throttleValue = 0.0;
 bool oldDeviceConnected = false;
 
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-#define DEVICE_DISPLAY_NAME "K25-ECU"
+
 
 class ServerCallbacks : public BLEServerCallbacks
 {
