@@ -1,15 +1,11 @@
 
 #include <SPI.h>
 #include <Arduino.h>
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEServer.h>
-#include <BLE2902.h>
+
 #include <mcp2515.h>
 #include <X9C.h>
+#include <com_manager.h>
 
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 #define VIRTUAL_POTENTIOMETER_PIN 46
 
@@ -42,80 +38,7 @@ MCP2515 *canController;
 
 DHT dht(DHTPIN, DHTTYPE);
 
-BLEServer *pServer = NULL;
-BLECharacteristic *pCharacteristic = NULL;
-bool deviceConnected = false;
-float throttleValue = 0.0;
-bool oldDeviceConnected = false;
 
-class ServerCallbacks : public BLEServerCallbacks
-{
-  void onConnect(BLEServer *pServer)
-  {
-    deviceConnected = true;
-  };
-
-  void onDisconnect(BLEServer *pServer)
-  {
-    deviceConnected = false;
-  }
-};
-
-void setupBLE()
-{
-  BLEDevice::init("ThrottleController");
-  pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new ServerCallbacks());
-BLEDevice::setMTU(128); // Set the MTU size to 128 bytes
-BLEDevice::getAdvertising()->setMinPreferred(0x30);  // 60 ms
-BLEDevice::getAdvertising()->setMaxPreferred(0x50);  // 100 ms
-  BLEService *pService = pServer->createService(SERVICE_UUID);
-
-  pCharacteristic = pService->createCharacteristic(
-      CHARACTERISTIC_UUID,
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE |
-          BLECharacteristic::PROPERTY_NOTIFY);
-
-  pCharacteristic->addDescriptor(new BLE2902());
-  pCharacteristic->setValue("0.0");
-
-  pService->start();
-
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(true);
-  BLEDevice::startAdvertising();
-
-  Serial.println("BLE server ready, waiting for connections...");
-}
-
-void updateThrottleLevel(float value)
-{
-  throttleValue = value;
-
-  if (deviceConnected)
-  {
-    char txString[8];
-    dtostrf(throttleValue, 2, 1, txString);
-    pCharacteristic->setValue(txString);
-    pCharacteristic->notify();
-  }
-
-  // Handle connection state changes
-  if (!deviceConnected && oldDeviceConnected)
-  {
-    delay(500);                  // Give the Bluetooth stack time to get ready
-    pServer->startAdvertising(); // Restart advertising
-    Serial.println("BLE advertising restarted");
-    oldDeviceConnected = deviceConnected;
-  }
-
-  if (deviceConnected && !oldDeviceConnected)
-  {
-    oldDeviceConnected = deviceConnected;
-  }
-}
 // RELAY_PIN_1, RELAY_PIN_2,
 const int relayPins[] = {ALARM_RELAY_PIN, FAN_RELAY_PIN, HEADLIGHT_RELAY_PIN, RELAY_PIN_6};
 const int relayCount = sizeof(relayPins) / sizeof(relayPins[0]);
@@ -126,9 +49,10 @@ int currentRelay = -1;
 const unsigned long relayActivationTime = 200; // 2 seconds in milliseconds
 
 X9C digiPot(36, 12, 35); // CS, INC, U/D pinleri
-
+ComManager comManager;
 void setup()
 {
+  
   digitalWrite(ARMING_SSR_RELAY_PIN, LOW); // Ensure all relays start off
   pinMode(ARMING_SSR_RELAY_PIN, OUTPUT);
 
@@ -148,8 +72,8 @@ void setup()
     delay(10); // USB bağlantısı kurulana kadar bekle
   }
   SPI.begin(CAN_SCK, CAN_MISO, CAN_MOSI, CAN_CS_PIN); // SPI pinlerini başlat
-  setupBLE();                                         // BLE ayarları yapılıyor
-
+  //setupBLE();                                         // BLE ayarları yapılıyor
+  comManager.initializeBLE();
   Serial.println("MCP2515 CAN Bus Test");
   pinMode(VIRTUAL_POTENTIOMETER_PIN, OUTPUT);
   // SPI pinlerini belirterek başlat (ESP32-S3 destekler)
@@ -190,6 +114,14 @@ static bool increasing = true;
  float throttlePercent = 0.0; // Throttle yüzdesi
 void loop()
 {
+
+  if (millis() - lastUpdateTime >= 100)
+  { // update once per second
+    int throttlePercentR = std::rand() % 101; // 0–100 arası
+    comManager.send_throttle_level(throttlePercentR);
+    lastUpdateTime = millis();
+  }
+
 
   // digitalWrite(ARMING_SSR_RELAY_PIN, HIGH); // Ensure all relays start off
   // delay(1000);
@@ -416,7 +348,7 @@ response.data[7] = 0x00;
 
       if (millis() - lastUpdateTime >= 100)
       { // update once per second
-        updateThrottleLevel(throttlePercent);
+        comManager.send_throttle_level(throttlePercent);
         lastUpdateTime = millis();
       }
 
