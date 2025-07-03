@@ -15,7 +15,7 @@ struct simple_can_package {
 class CanBusManager {
     public:
     CanBusManager();
-    void initializeCanBusSystem ();
+    void initialize();
     simple_can_package tick();
     private:
     MCP2515 *canController;

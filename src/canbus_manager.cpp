@@ -10,7 +10,7 @@ struct can_frame response;
 
 CanBusManager::CanBusManager() {}
 
-void CanBusManager::initializeCanBusSystem() {
+void CanBusManager::initialize() {
     SPI.begin(CAN_SCK, CAN_MISO, CAN_MOSI, CAN_CS_PIN); // SPI pinlerini başlat
     canController = new MCP2515(CAN_CS_PIN);
     canController->reset();

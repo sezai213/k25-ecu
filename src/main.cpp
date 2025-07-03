@@ -56,12 +56,14 @@ void setup()
 {
   Serial.begin(115200);
   relays_initialize();
-  throttlePotentiometer.begin();
+  canBusManager.initialize();
+  throttlePotentiometer.initialize();
   thermalManagement.initialize();
-  comManager.initializeBLE();
+  comManager.initialize();
   watch_dog_initialize();
   siren_system_startup_melody();
   ignition_system_on();
+
 }
 
 void loop()

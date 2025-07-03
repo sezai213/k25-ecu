@@ -7,7 +7,7 @@
 class X9C {
 public:
   X9C(uint8_t pinCS, uint8_t pinINC, uint8_t pinUD);
-  void begin();
+  void initialize();
   void reset();
   void setPercentageValue(float target);
   void setStepValue(uint8_t target);

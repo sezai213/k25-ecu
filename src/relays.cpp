@@ -13,6 +13,6 @@ void relays_initialize(){
     digitalWrite(FAN_RELAY_PIN, HIGH); 
     digitalWrite(RELAY_PIN_3, HIGH); 
     digitalWrite(RELAY_PIN_4, HIGH); 
-    digitalWrite(IGNITION_SSR_RELAY_PIN, HIGH); 
+    digitalWrite(IGNITION_SSR_RELAY_PIN, LOW);// It is a SSR relay, so it is OFF when LOW. 
   
   }

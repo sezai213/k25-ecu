@@ -16,7 +16,7 @@ X9C::X9C(uint8_t pinCS, uint8_t pinINC, uint8_t pinUD)
       digitalWrite(_cs, HIGH);
 
     }
-void X9C::begin() {
+void X9C::initialize() {
   pinMode(_cs, OUTPUT);
   pinMode(_inc, OUTPUT);
   pinMode(_ud, OUTPUT);

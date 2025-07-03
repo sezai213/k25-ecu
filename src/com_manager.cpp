@@ -29,7 +29,7 @@ class ServerCallbacks : public BLEServerCallbacks
     }
 };
 
-void ComManager::initializeBLE()
+void ComManager::initialize()
 
 {
     BLEDevice::init(DEVICE_DISPLAY_NAME);

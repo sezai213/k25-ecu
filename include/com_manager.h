@@ -8,7 +8,7 @@
 class ComManager {
     public:
         ComManager();
-        void initializeBLE();
+        void initialize();
         void send_throttle_level(float value);
 
     private:

@@ -18,7 +18,8 @@ void IRAM_ATTR watch_dog_onTimer()
     if ((now - lastThrottleUpdateTime) > THROTTLE_TIMEOUT_MS)
     {
         throttlePotentiometer.reset();
-        siren_system_panic_melody();
+        
+        
     }
     portEXIT_CRITICAL_ISR(&timerMux);
 }

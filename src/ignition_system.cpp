@@ -3,9 +3,9 @@
 
 void ignition_system_on()
 {
-    digitalWrite(IGNITION_SSR_RELAY_PIN, LOW);
+    digitalWrite(IGNITION_SSR_RELAY_PIN, HIGH);
 }
 void ignition_system_off()
 {
-    digitalWrite(IGNITION_SSR_RELAY_PIN, HIGH);
+    digitalWrite(IGNITION_SSR_RELAY_PIN, LOW);
 }
