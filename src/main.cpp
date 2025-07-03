@@ -13,7 +13,7 @@ ComManager comManager;
 CanBusManager canBusManager;
 
 static unsigned long lastUpdateTime = 0;
-
+static unsigned long lastTempDataTime = 0;
 void processThrottleMessage(simple_can_package &simplePackage)
 {
   float throttlePercent = (simplePackage.package_value / 65535.0) * 100.0;
@@ -58,7 +58,14 @@ void setup()
 
 void loop()
 {
-  float temperature = thermalManagement.readTemperature();
+
+  if (millis() - lastTempDataTime >= 10000)
+  { 
+    float temperature = thermalManagement.readTemperature();
+    lastTempDataTime = millis();
+  }
+
+
   
   simple_can_package simplePackage = canBusManager.tick();
   if (simplePackage.package_type == CANBUS_PACKAGE_TYPE_THROTTLE_VALUE)
