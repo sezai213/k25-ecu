@@ -9,6 +9,8 @@
 #include <watch_dog.h>
 #include <fan_system.h>
 #include <relays.h>
+#include <siren_system.h>
+#include <ignition_system.h>
 
 X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN);
 ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
@@ -54,10 +56,12 @@ void setup()
 {
   Serial.begin(115200);
   relays_initialize();
-  throttlePotentiometer.begin(); // Dijital potansiyometre başlatılıyor
+  throttlePotentiometer.begin();
   thermalManagement.initialize();
   comManager.initializeBLE();
   watch_dog_initialize();
+  siren_system_startup_melody();
+  ignition_system_on();
 }
 
 void loop()
