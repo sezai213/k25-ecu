@@ -1,5 +1,6 @@
 
-#define THERMAL_SENSOR_PIN  4
+#define THERMAL_SENSOR_PIN          4
+#define THERMAL_SENSOR_PERIOD_MS    10000
 //#define VIRTUAL_POTENTIOMETER_PIN 46
 
 ////////////////////// VIRTUAL POTENTIOMETER //////////////////////

@@ -6,6 +6,7 @@
 #include <thermal_management.h>
 #include <global_configuration.h>
 #include <canbus_manager.h>
+#include <watch_dog.h>
 
 X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN); 
 ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
@@ -14,6 +15,7 @@ CanBusManager canBusManager;
 
 static unsigned long lastUpdateTime = 0;
 static unsigned long lastTempDataTime = 0;
+
 void processThrottleMessage(simple_can_package &simplePackage)
 {
   float throttlePercent = (simplePackage.package_value / 65535.0) * 100.0;
@@ -40,6 +42,7 @@ void setup()
   throttlePotentiometer.begin(); // Dijital potansiyometre başlatılıyor
   thermalManagement.initialize();
   comManager.initializeBLE();
+  watch_dog_initialize();
 
 }
 
@@ -47,20 +50,18 @@ void setup()
 void loop()
 {
 
-  if (millis() - lastTempDataTime >= 10000)
+  if (millis() - lastTempDataTime >= THERMAL_SENSOR_PERIOD_MS)
   { 
     float temperature = thermalManagement.readTemperature();
     lastTempDataTime = millis();
   }
 
-
-  
   simple_can_package simplePackage = canBusManager.tick();
   if (simplePackage.package_type == CANBUS_PACKAGE_TYPE_THROTTLE_VALUE)
   {
     processThrottleMessage(simplePackage);
+    watch_dog_update_throttle_data_received();
   }
 
-
-  delay(5); // 5 ms bekle
+  delayMicroseconds(100);
 }
