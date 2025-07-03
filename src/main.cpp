@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <mcp2515.h>
 #include <X9C.h>
-#include <com_manager.h>
+#include <ble_manager.h>
 #include <thermal_management.h>
 #include <global_configuration.h>
 #include <canbus_manager.h>
@@ -14,7 +14,7 @@
 
 X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN);
 ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
-ComManager comManager;
+BleManager bleManager;
 CanBusManager canBusManager;
 
 static unsigned long lastUpdateTime = 0;
@@ -30,7 +30,7 @@ void processThrottleMessage(simple_can_package &simplePackage)
 
   if (millis() - lastUpdateTime >= 100)
   { // update once per second
-    comManager.send_throttle_level(throttlePercent);
+    bleManager.send_throttle_level(throttlePercent);
     lastUpdateTime = millis();
   }
   throttlePotentiometer.setPercentageValue(throttlePercent);
@@ -41,6 +41,7 @@ void check_temp()
   if (millis() - lastTempDataTime >= THERMAL_SENSOR_PERIOD_MS)
   {
     float temperature = thermalManagement.readTemperature();
+    bleManager.send_temperature_value(temperature);
     lastTempDataTime = millis();
     if (temperature > THERMAL_FAN_THRESHOLD_TEMP)
     {
@@ -59,7 +60,7 @@ void setup()
   canBusManager.initialize();
   throttlePotentiometer.initialize();
   thermalManagement.initialize();
-  comManager.initialize();
+  bleManager.initialize();
   watch_dog_initialize();
   siren_system_startup_melody();
   ignition_system_on();
