@@ -24,14 +24,24 @@ void X9C::begin() {
   digitalWrite(_cs, HIGH);
   digitalWrite(_inc, HIGH);
   digitalWrite(_ud, LOW);
-
+  this->reset();
 
 }
 
+void X9C::setPercentageValue(float target) {
 
+  if (target < 0.0f) target = 0.0f;
+  if (target > 100.0f) target = 100.0f;
 
-void X9C::setValue(uint8_t target) {
-  if (target > 99) target = 99;
+  float range = (float)(X9C_MAX_STEP - X9C_MIN_STEP);
+  float step_f = X9C_MIN_STEP + (range * (target / 100.0f));
+  
+  uint8_t targetStep= (uint8_t)(step_f + 0.5f); 
+  this->setStepValue(targetStep);
+}
+
+void X9C::setStepValue(uint8_t target) {
+  if (target > X9C_MAX_STEP) target = X9C_MAX_STEP;
 
   if (target == _currentValue) return;
   Serial.println("Setting value to: " + String(target));
@@ -41,7 +51,7 @@ void X9C::setValue(uint8_t target) {
   if (target == 0) {
     digitalWrite(_ud, LOW);
     wait_timing();
-    for (int i = 0; i < 100; i++) pulseINC();
+    for (int i = 0; i < X9C_MAX_STEP; i++) pulseINC();
     _currentValue = 0;
   } else if (target > _currentValue) {
     digitalWrite(_ud, HIGH);

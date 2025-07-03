@@ -7,7 +7,7 @@
 #include <global_configuration.h>
 #include <canbus_manager.h>
 
-X9C digiPot(36, 12, 35); // CS, INC, U/D pinleri
+X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN); 
 ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
 ComManager comManager;
 CanBusManager canBusManager;
@@ -27,15 +27,7 @@ void processThrottleMessage(simple_can_package &simplePackage)
     comManager.send_throttle_level(throttlePercent);
     lastUpdateTime = millis();
   }
-
-  int potValue = (int)((throttlePercent / 100.0) * 30);
-
-  if (potValue > 30)
-    potValue = 30;
-  if (potValue < 0)
-    potValue = 0;
-  // Sinyali üret
-  digiPot.setValue(potValue); // Dijital potansiyometreye throttle değerini gönder
+  throttlePotentiometer.setPercentageValue(throttlePercent);
 }
 
 
@@ -45,14 +37,10 @@ void setup()
   digitalWrite(ARMING_SSR_RELAY_PIN, LOW); // Ensure all relays start off
   pinMode(ARMING_SSR_RELAY_PIN, OUTPUT);
 
-  digiPot.begin(); // Dijital potansiyometre başlatılıyor
-  digiPot.reset(); // Dijital potansiyometreye throttle değerini gönder
-
+  throttlePotentiometer.begin(); // Dijital potansiyometre başlatılıyor
   thermalManagement.initialize();
   comManager.initializeBLE();
 
-  pinMode(VIRTUAL_POTENTIOMETER_PIN, OUTPUT);
-  analogWrite(VIRTUAL_POTENTIOMETER_PIN, 128);
 }
 
 

@@ -1,6 +1,13 @@
 
 #define THERMAL_SENSOR_PIN  4
-#define VIRTUAL_POTENTIOMETER_PIN 46
+//#define VIRTUAL_POTENTIOMETER_PIN 46
+
+////////////////////// VIRTUAL POTENTIOMETER //////////////////////
+#define VIRTUAL_POTENTIOMETER_CS_PIN            36
+#define VIRTUAL_POTENTIOMETER_INC_PIN           12
+#define VIRTUAL_POTENTIOMETER_UD_PIN            35
+///////////////////////////////////////////////////////////////////
+
 
 ////////////////////// BLE CONFIGURATION //////////////////////
 #define SERVICE_UUID            "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
