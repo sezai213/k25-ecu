@@ -1,5 +1,6 @@
 #include <esp32-hal-timer.h>
 #include <X9C.h>
+#include <siren_system.h>
 
 #define THROTTLE_TIMEOUT_MS 2000 // 2 saniye zaman aşımı
 #define TIMER_INTERVAL_US 100000 // 100ms = 100000us
@@ -17,6 +18,7 @@ void IRAM_ATTR watch_dog_onTimer()
     if ((now - lastThrottleUpdateTime) > THROTTLE_TIMEOUT_MS)
     {
         throttlePotentiometer.reset();
+        siren_system_panic_melody();
     }
     portEXIT_CRITICAL_ISR(&timerMux);
 }

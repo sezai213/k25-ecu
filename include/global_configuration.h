@@ -1,6 +1,7 @@
 
 #define THERMAL_SENSOR_PIN          4
 #define THERMAL_SENSOR_PERIOD_MS    10000
+#define THERMAL_FAN_THRESHOLD_TEMP  40
 //#define VIRTUAL_POTENTIOMETER_PIN 46
 
 ////////////////////// VIRTUAL POTENTIOMETER //////////////////////
@@ -26,9 +27,9 @@
 
 
 ////////////////////// RELAY PINS //////////////////////
-#define ALARM_RELAY_PIN         37
-#define FAN_RELAY_PIN           38
-#define HEADLIGHT_RELAY_PIN     39
-#define RELAY_PIN_6             40
-#define ARMING_SSR_RELAY_PIN    8
+#define ALARM_RELAY_PIN             37
+#define FAN_RELAY_PIN               38
+#define RELAY_PIN_3                 39
+#define RELAY_PIN_4                 40
+#define IGNITION_SSR_RELAY_PIN      8
 ////////////////////////////////////////////////////////

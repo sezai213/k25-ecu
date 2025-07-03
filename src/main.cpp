@@ -7,8 +7,10 @@
 #include <global_configuration.h>
 #include <canbus_manager.h>
 #include <watch_dog.h>
+#include <fan_system.h>
+#include <relays.h>
 
-X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN); 
+X9C throttlePotentiometer(VIRTUAL_POTENTIOMETER_CS_PIN, VIRTUAL_POTENTIOMETER_INC_PIN, VIRTUAL_POTENTIOMETER_UD_PIN);
 ThermalManagement thermalManagement(THERMAL_SENSOR_PIN);
 ComManager comManager;
 CanBusManager canBusManager;
@@ -32,29 +34,36 @@ void processThrottleMessage(simple_can_package &simplePackage)
   throttlePotentiometer.setPercentageValue(throttlePercent);
 }
 
-
+void check_temp()
+{
+  if (millis() - lastTempDataTime >= THERMAL_SENSOR_PERIOD_MS)
+  {
+    float temperature = thermalManagement.readTemperature();
+    lastTempDataTime = millis();
+    if (temperature > THERMAL_FAN_THRESHOLD_TEMP)
+    {
+      fan_system_enable_fan();
+    }
+    else
+    {
+      fan_system_disable_fan();
+    }
+  }
+}
 void setup()
 {
-  Serial.begin(115200); 
-  digitalWrite(ARMING_SSR_RELAY_PIN, LOW); // Ensure all relays start off
-  pinMode(ARMING_SSR_RELAY_PIN, OUTPUT);
-
+  Serial.begin(115200);
+  relays_initialize();
   throttlePotentiometer.begin(); // Dijital potansiyometre başlatılıyor
   thermalManagement.initialize();
   comManager.initializeBLE();
   watch_dog_initialize();
-
 }
-
 
 void loop()
 {
 
-  if (millis() - lastTempDataTime >= THERMAL_SENSOR_PERIOD_MS)
-  { 
-    float temperature = thermalManagement.readTemperature();
-    lastTempDataTime = millis();
-  }
+  check_temp();
 
   simple_can_package simplePackage = canBusManager.tick();
   if (simplePackage.package_type == CANBUS_PACKAGE_TYPE_THROTTLE_VALUE)
