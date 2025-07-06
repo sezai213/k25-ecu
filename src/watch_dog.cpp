@@ -3,7 +3,7 @@
 #include <siren_system.h>
 
 #define THROTTLE_TIMEOUT_MS 2000 // 2 saniye zaman aşımı
-#define TIMER_INTERVAL_US 100000 // 100ms = 100000us
+#define TIMER_INTERVAL_US 500000 // 500ms = 500000us
 
 volatile unsigned long lastThrottleUpdateTime = 0;
 extern X9C throttlePotentiometer;

@@ -20,21 +20,30 @@ CanBusManager canBusManager;
 static unsigned long lastUpdateTime = 0;
 static unsigned long lastTempDataTime = 0;
 
-void processThrottleMessage(simple_can_package &simplePackage)
+void send_to_air(float throttlePercent)
 {
-  float throttlePercent = (simplePackage.package_value / 65535.0) * 100.0;
-  if (throttlePercent > 100.0)
-    throttlePercent = 100.0; // Yüzdeyi sınırla
-  if (throttlePercent < 0.0)
-    throttlePercent = 0.0; // Yüzdeyi sınırla
-
+  return;
   if (millis() - lastUpdateTime >= 100)
   { // update once per second
     bleManager.send_throttle_level(throttlePercent);
     lastUpdateTime = millis();
   }
+}
+
+void processThrottleMessage(simple_can_package &simplePackage)
+{
+  float throttlePercent = (simplePackage.package_value / 65535.0) * 100.0;
+  if (throttlePercent > 68.0)
+    throttlePercent = 100.0; // Yüzdeyi sınırla
+  if (throttlePercent < 0.0)
+    throttlePercent = 0.0; // Yüzdeyi sınırla
+
+  send_to_air(throttlePercent);
+
   throttlePotentiometer.setPercentageValue(throttlePercent);
 }
+
+
 
 void check_temp()
 {
@@ -70,7 +79,7 @@ void setup()
 void loop()
 {
 
-  check_temp();
+  //check_temp();
 
   simple_can_package simplePackage = canBusManager.tick();
   if (simplePackage.package_type == CANBUS_PACKAGE_TYPE_THROTTLE_VALUE)
